@@ -151,10 +151,3 @@ powershell -ExecutionPolicy Bypass -File .\install\install-task.ps1 -Uninstall
   failure is still logged — the missing notifier never crashes the run.
 - **Log growth:** `~/claude_warmup.log` is append-only and unbounded; rotate or
   truncate it manually if desired.
-
-## Spec
-
-This project was designed and built spec-first with
-[OpenSpec](https://github.com/Fission-AI/OpenSpec). See
-`openspec/changes/add-claude-warmup-automation/` for the proposal, design,
-specs, and task breakdown.
