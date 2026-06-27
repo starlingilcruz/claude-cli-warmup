@@ -14,15 +14,16 @@ your own machine is off or asleep.
 
 | Your OS     | Use this installer            | Scheduler       | Guide                          |
 | ----------- | ----------------------------- | --------------- | ------------------------------ |
-| **macOS**   | `install/install-launchd.sh`  | launchd         | [Version 1a](#version-1a--macos-bash--launchd--recommended) |
-| **Linux**   | `install/install-cron.sh`     | cron            | [Version 1b](#version-1b--linux-bash--cron) |
-| **Windows** | `install/install-task.ps1`    | Task Scheduler  | [Version 2](#version-2--windows-powershell--task-scheduler) |
+| **macOS**   | `install/install-launchd.sh`  | launchd         | [macOS — launchd](#macos--launchd) |
+| **Linux**   | `install/install-cron.sh`     | cron            | [Linux — cron](#linux--cron) |
+| **Windows** | `install/install-task.ps1`    | Task Scheduler  | [Windows — Task Scheduler](#windows--task-scheduler) |
 
 > **macOS users: do not use `install-cron.sh`.** cron on macOS cannot reach the
 > login Keychain, so the warmup fails with `Not logged in`. Use the launchd
-> installer (Version 1a). cron is the correct choice on **Linux** only.
+> installer (the **macOS — launchd** section). cron is the correct choice on
+> **Linux** only.
 
-The GitHub Actions cloud job (Version 3) works on any OS and complements the
+The **GitHub Actions — cloud fallback** job works on any OS and complements the
 local installer above.
 
 ## What it does
@@ -43,7 +44,7 @@ local installer above.
 ```
 bin/claude-warmup.sh           # macOS/Linux warmup script
 bin/claude-warmup.ps1          # Windows warmup script
-install/install-launchd.sh     # macOS scheduler installer (launchd — recommended)
+install/install-launchd.sh     # macOS scheduler installer (launchd)
 install/install-cron.sh        # Linux scheduler installer (cron)
 install/install-task.ps1       # Windows scheduler installer (Task Scheduler)
 .github/workflows/warmup.yml   # GitHub Actions cloud warmup (scheduled)
@@ -55,7 +56,7 @@ The first-run anchor hour is persisted to:
 
 ---
 
-## Version 1a — macOS (Bash + launchd) — recommended
+## macOS — launchd
 
 On macOS the Claude CLI reads its login token from the **login Keychain**, and
 **cron cannot reach it**: cron jobs run in the system bootstrap context, outside
@@ -112,11 +113,11 @@ launchctl kickstart -k "gui/$(id -u)/com.rocketbyte.claude-warmup"; tail -n 1 ~/
 - The LaunchAgent runs only while you are logged in to the desktop. For a job
   that runs with no one logged in you would need a system LaunchDaemon plus a
   file-based credential — out of scope here; use the GitHub Actions fallback
-  (Version 3) for off/asleep coverage.
+  (**GitHub Actions — cloud fallback**) for off/asleep coverage.
 
 ---
 
-## Version 1b — Linux (Bash + cron)
+## Linux — cron
 
 On Linux the CLI does not depend on a GUI Keychain, so cron works.
 
@@ -166,13 +167,13 @@ env -i HOME="$HOME" /bin/sh -c '/abs/path/bin/claude-warmup.sh'; tail -n 1 ~/cla
 ./install/install-cron.sh --uninstall     # remove the cron block
 ```
 
-> **macOS users:** do not use `install-cron.sh` — see Version 1a (launchd).
+> **macOS users:** do not use `install-cron.sh` — see the **macOS — launchd** section.
 > cron on macOS cannot access the login Keychain and the job will fail with
 > `Not logged in`.
 
 ---
 
-## Version 2 — Windows (PowerShell + Task Scheduler)
+## Windows — Task Scheduler
 
 ### Prerequisites
 - The `claude` CLI installed and working interactively.
@@ -215,7 +216,7 @@ powershell -ExecutionPolicy Bypass -File .\install\install-task.ps1 -Uninstall
 
 ---
 
-## Version 3 — GitHub Actions (cloud fallback)
+## GitHub Actions — cloud fallback
 
 Runs the warmup from GitHub's servers on a schedule, so the quota window stays
 warm **even when your own machine is off or asleep** — the one gap that local
