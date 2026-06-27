@@ -6,10 +6,16 @@ call — `claude -p` with a prompt that forces a one-character answer (the digit
 `1`) — which touches the rolling quota window while keeping both input and
 output tokens minimal.
 
+Runs **locally** (cron on macOS/Linux, Task Scheduler on Windows) **and/or in
+the cloud** via GitHub Actions — so the window stays warm even when your own
+machine is off or asleep.
+
 ## What it does
 
 - Runs the minimal warmup call **at boot** and on a **configurable interval
   (default every 2 hours)**, anchored to an hour you choose on first install.
+- Also ships a **GitHub Actions** workflow that runs the same call on a schedule
+  from the cloud as a fallback for when your machine is off.
 - Appends a timestamped result to `~/claude_warmup.log` (exact timestamp,
   success/failure, exit code, and raw error output on failure).
 - Fires a **native desktop notification** on failure
@@ -20,10 +26,11 @@ output tokens minimal.
 ## Layout
 
 ```
-bin/claude-warmup.sh        # macOS/Linux warmup script
-bin/claude-warmup.ps1       # Windows warmup script
-install/install-cron.sh     # macOS/Linux scheduler installer (cron)
-install/install-task.ps1    # Windows scheduler installer (Task Scheduler)
+bin/claude-warmup.sh           # macOS/Linux warmup script
+bin/claude-warmup.ps1          # Windows warmup script
+install/install-cron.sh        # macOS/Linux scheduler installer (cron)
+install/install-task.ps1       # Windows scheduler installer (Task Scheduler)
+.github/workflows/warmup.yml   # GitHub Actions cloud warmup (scheduled)
 ```
 
 The first-run anchor hour is persisted to:
